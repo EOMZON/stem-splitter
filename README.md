@@ -2,7 +2,34 @@
 
 简洁黑白风格的本地音轨提取网页：调用 Demucs 将歌曲分轨，并生成去人声的纯音乐版，内置波形和播放进度展示，适合作为个人工作流工具或 Demo。
 
-> 本项目设计为在本地或你自己控制的服务器上运行，不适合直接部署到 Cloudflare Workers / Pages。
+---
+
+## 在线 Demo（GitHub Pages）
+
+- 静态试听 Demo（基于预生成分轨和去人声纯音乐）：  
+  👉 在 GitHub Pages 中将 Source 配置为 `main` 分支的 `/docs` 目录后，这里的访问地址类似：
+  `https://你的 GitHub 用户名.github.io/你的仓库名/`  
+  （实际生效后，建议把最终网址直接写在这里，例如：`https://example.github.io/stem-splitter/`）
+
+---
+
+## 界面预览
+
+上传界面：
+
+![上传界面](docs/pic/上传界面.png)
+
+提取分轨进度（耗时展示）：
+
+![提取分轨需要消耗一段时间](docs/pic/提取分轨需要消耗一段时间.png)
+
+首次安装依赖（Demucs / PyTorch 等）：
+
+![首次安装依赖](docs/pic/首次安装依赖.png)
+
+分轨结果页（可试听与下载）：
+
+![分轨结果展示可试听和下载](docs/pic/分轨结果展示可试听和下载.png)
 
 ---
 
@@ -24,4 +51,3 @@ bash scripts/run_local.sh
 ## 更多信息
 
 - 详细功能说明、部署建议、Demo 用法和安全提示，请查看：`docs/guide.md`
-

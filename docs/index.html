@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>Stem Splitter Web Demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/style.css">
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+  </head>
+  <body class="page page--dark">
+    <main class="container">
+      <header class="header">
+        <h1 class="title">Stem Splitter Web</h1>
+        <p class="subtitle">
+          基于 Demucs 的本地音轨分离工具 · 下方是使用预先生成分轨文件的静态 Demo。
+        </p>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">项目简介</h2>
+        <p class="form__hint">
+          这个页面是专门为 GitHub Pages 准备的静态介绍页，不依赖后台服务，
+          使用仓库中已经生成好的分轨和预览音频文件进行展示，适合作为公开 Demo。
+        </p>
+        <p class="form__hint">
+          完整项目支持上传任意音频文件，调用 Demucs 分轨，并自动合成去人声的纯音乐，
+          前端内置波形与播放进度显示，适合作为个人工作流工具或演示项目。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">原曲试听</h2>
+        <p class="form__hint">
+          先听一遍原始混音，再对比下方各个分轨和去人声纯音乐，感受 Demucs 分离的效果。
+        </p>
+        <div
+          class="player"
+          data-stem-player
+          data-stem="original"
+          data-audio-url="demo/original.mp3"
+        >
+          <div class="player__head">
+            <span class="list__label">original</span>
+            <span class="player__time" data-role="time">00:00 / -00:00</span>
+          </div>
+          <div class="wave"></div>
+          <div class="player__controls">
+            <button type="button" class="button button--primary" data-role="play">
+              <span class="button-icon" data-role="icon">▶</span>
+              <span class="button-label" data-role="label">播放</span>
+            </button>
+            <a href="demo/original.mp3" class="button button--ghost">
+              下载原曲（Demo 用）
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">示例歌曲分轨试听</h2>
+        <p class="form__hint">
+          以下音轨来自本地预先生成的分轨结果，仅作为界面与效果展示。
+          如需对自己的歌曲进行分轨，请在本地运行 Flask 应用。
+        </p>
+        <ul class="list">
+          <li class="list__item">
+            <div
+              class="player"
+              data-stem-player
+              data-stem="vocals"
+              data-audio-url="demo/vocals_preview.mp3"
+            >
+              <div class="player__head">
+                <span class="list__label">vocals</span>
+                <span class="player__time" data-role="time">00:00 / -00:00</span>
+              </div>
+              <div class="wave"></div>
+              <div class="player__controls">
+                <button type="button" class="button button--primary" data-role="play">
+                  <span class="button-icon" data-role="icon">▶</span>
+                  <span class="button-label" data-role="label">播放</span>
+                </button>
+                <a href="demo/vocals_preview.mp3" class="button button--ghost">下载 vocals.mp3</a>
+              </div>
+            </div>
+          </li>
+          <li class="list__item">
+            <div
+              class="player"
+              data-stem-player
+              data-stem="drums"
+              data-audio-url="demo/drums_preview.mp3"
+            >
+              <div class="player__head">
+                <span class="list__label">drums</span>
+                <span class="player__time" data-role="time">00:00 / -00:00</span>
+              </div>
+              <div class="wave"></div>
+              <div class="player__controls">
+                <button type="button" class="button button--primary" data-role="play">
+                  <span class="button-icon" data-role="icon">▶</span>
+                  <span class="button-label" data-role="label">播放</span>
+                </button>
+                <a href="demo/drums_preview.mp3" class="button button--ghost">下载 drums.mp3</a>
+              </div>
+            </div>
+          </li>
+          <li class="list__item">
+            <div
+              class="player"
+              data-stem-player
+              data-stem="bass"
+              data-audio-url="demo/bass_preview.mp3"
+            >
+              <div class="player__head">
+                <span class="list__label">bass</span>
+                <span class="player__time" data-role="time">00:00 / -00:00</span>
+              </div>
+              <div class="wave"></div>
+              <div class="player__controls">
+                <button type="button" class="button button--primary" data-role="play">
+                  <span class="button-icon" data-role="icon">▶</span>
+                  <span class="button-label" data-role="label">播放</span>
+                </button>
+                <a href="demo/bass_preview.mp3" class="button button--ghost">下载 bass.mp3</a>
+              </div>
+            </div>
+          </li>
+          <li class="list__item">
+            <div
+              class="player"
+              data-stem-player
+              data-stem="other"
+              data-audio-url="demo/other_preview.mp3"
+            >
+              <div class="player__head">
+                <span class="list__label">other</span>
+                <span class="player__time" data-role="time">00:00 / -00:00</span>
+              </div>
+              <div class="wave"></div>
+              <div class="player__controls">
+                <button type="button" class="button button--primary" data-role="play">
+                  <span class="button-icon" data-role="icon">▶</span>
+                  <span class="button-label" data-role="label">播放</span>
+                </button>
+                <a href="demo/other_preview.mp3" class="button button--ghost">下载 other.mp3</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">去人声纯音乐示例</h2>
+        <div
+          class="player"
+          data-stem-player
+          data-stem="instrumental"
+          data-audio-url="demo/instrumental_preview.mp3"
+        >
+          <div class="player__head">
+            <span class="list__label">instrumental</span>
+            <span class="player__time" data-role="time">00:00 / -00:00</span>
+          </div>
+          <div class="wave"></div>
+          <div class="player__controls">
+            <button type="button" class="button button--primary" data-role="play">
+              <span class="button-icon" data-role="icon">▶</span>
+              <span class="button-label" data-role="label">播放</span>
+            </button>
+            <a href="demo/instrumental_preview.mp3" class="button button--ghost">
+              下载纯音乐预览
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">部署与源码</h2>
+        <p class="form__hint">
+          本静态页面可以直接通过 GitHub Pages 部署。推荐在仓库
+          <code>Settings &gt; Pages</code> 中将 Source 配置为
+          <code>main</code> 分支的 <code>/docs</code> 目录。
+        </p>
+        <p class="form__hint">
+          若要绑定自定义域名（例如 <code>audio.yourdomain.com</code>），
+          可以在 GitHub Pages 配置 Custom domain，
+          然后在域名 DNS 中添加 CNAME 记录指向
+          <code>你的用户名.github.io</code>，再启用 HTTPS 即可。
+        </p>
+      </section>
+
+      <footer class="footer">
+        <p>本 Demo 仅用于技术展示，请确保示例音频具有合法使用授权。</p>
+      </footer>
+    </main>
+
+    <script>
+      window.addEventListener('load', function () {
+        if (!window.WaveSurfer) return;
+        var players = Array.prototype.slice.call(
+          document.querySelectorAll('[data-stem-player]')
+        );
+        if (!players.length) return;
+
+        function formatTime(seconds) {
+          if (!seconds || !isFinite(seconds)) return '00:00';
+          var s = Math.floor(seconds);
+          var m = Math.floor(s / 60);
+          var r = s % 60;
+          return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+        }
+
+        var current = { ws: null, el: null };
+
+        players.forEach(function (el) {
+          var audioUrl = el.getAttribute('data-audio-url');
+          if (!audioUrl) return;
+
+          var waveEl = el.querySelector('.wave');
+          var playBtn = el.querySelector('[data-role="play"]');
+          var timeEl = el.querySelector('[data-role="time"]');
+          var iconEl = el.querySelector('[data-role="icon"]');
+          var labelEl = el.querySelector('[data-role="label"]');
+          if (!waveEl || !playBtn || !timeEl) return;
+
+          var ws = WaveSurfer.create({
+            container: waveEl,
+            url: audioUrl,
+            waveColor: '#999',
+            progressColor: '#000',
+            cursorColor: '#000',
+            cursorWidth: 3,
+            height: 64,
+            barWidth: 2,
+            barGap: 2,
+            responsive: true,
+          });
+
+          var duration = 0;
+
+          ws.on('ready', function () {
+            duration = ws.getDuration() || 0;
+            timeEl.textContent = '00:00 / -' + formatTime(duration);
+          });
+
+          ws.on('audioprocess', function (currentTime) {
+            if (!duration) {
+              duration = ws.getDuration() || 0;
+            }
+            var t = currentTime || ws.getCurrentTime() || 0;
+            var remain = Math.max(duration - t, 0);
+            timeEl.textContent =
+              formatTime(t) + ' / -' + formatTime(remain);
+          });
+
+          ws.on('seek', function (progress) {
+            if (!duration) {
+              duration = ws.getDuration() || 0;
+            }
+            var t = progress * duration;
+            var remain = Math.max(duration - t, 0);
+            timeEl.textContent =
+              formatTime(t) + ' / -' + formatTime(remain);
+          });
+
+          ws.on('play', function () {
+            if (labelEl) labelEl.textContent = '暂停';
+            if (iconEl) iconEl.textContent = '❚❚';
+          });
+          ws.on('pause', function () {
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+          });
+          ws.on('finish', function () {
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+            if (duration) {
+              timeEl.textContent =
+                formatTime(duration) + ' / -00:00';
+            }
+          });
+
+          ws.on('error', function () {
+            timeEl.textContent = '加载失败';
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+          });
+
+          playBtn.addEventListener('click', function () {
+            if (current.ws && current.ws !== ws) {
+              current.ws.pause();
+            }
+            if (ws.isPlaying()) {
+              ws.pause();
+            } else {
+              ws.play();
+              current.ws = ws;
+              current.el = el;
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+  </html>

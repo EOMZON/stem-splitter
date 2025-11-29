@@ -81,8 +81,8 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone <你的仓库地址> stem-splitter-web
-cd stem-splitter-web
+git clone <你的仓库地址> stem-splitter
+cd stem-splitter
 ```
 
 ### 2. 安装 Flask（网页部分）

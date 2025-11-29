@@ -5,7 +5,7 @@
     <title>分轨结果 | {{ slug }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+    <script src="{{ url_for('static', filename='wavesurfer.min.js') }}"></script>
   </head>
   <body class="page page--dark">
     <main class="container">

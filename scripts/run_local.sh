@@ -31,7 +31,7 @@ pip install --upgrade pip >/dev/null 2>&1 || true
 pip install -r requirements.txt
 
 export FLASK_SECRET_KEY="${FLASK_SECRET_KEY:-please-change-me}"
-export PORT="${PORT:-5000}"
+export PORT="${PORT:-7100}"
 
 echo
 echo "启动应用："

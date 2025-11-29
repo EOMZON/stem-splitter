@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# 本项目本地虚拟环境（Demucs）
+spleeter-py310/
+
+# 运行时生成的音频与上传文件（包含个人音频，勿入库）
+stems/
+uploads/
+
+# 编辑器 / 系统
+.DS_Store
+.idea/
+.vscode/
+

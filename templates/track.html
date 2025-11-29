@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>分轨结果 | {{ slug }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+  </head>
+  <body class="page page--dark">
+    <main class="container">
+      <header class="header">
+        <h1 class="title">分轨完成</h1>
+        <p class="subtitle">slug：{{ slug }}</p>
+      </header>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flash-list">
+            {% for msg in messages %}
+              <li class="flash-item">{{ msg }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <section class="card">
+        <h2 class="section-title">各个音轨</h2>
+        <ul class="list">
+          {% for stem in stems %}
+            <li class="list__item">
+              {% if stem.exists %}
+                <div
+                  class="player"
+                  data-stem-player
+                  data-stem="{{ stem.name }}"
+                  data-audio-url="{{ stem.audio_url }}"
+                >
+                  <div class="player__head">
+                    <span class="list__label">{{ stem.name }}</span>
+                    <span class="player__time" data-role="time">00:00 / -00:00</span>
+                  </div>
+                  <div class="wave"></div>
+                  <div class="player__controls">
+                    <button type="button" class="button button--primary" data-role="play">
+                      <span class="button-icon" data-role="icon">▶</span>
+                      <span class="button-label" data-role="label">播放</span>
+                    </button>
+                    <a href="{{ stem.download_url }}" class="button button--ghost">下载 {{ stem.name }}.wav</a>
+                  </div>
+                </div>
+              {% else %}
+                <span class="list__label">{{ stem.name }}</span>
+                <span class="list__status list__status--missing">未找到文件</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">去人声纯音乐</h2>
+        {% if instrumental_exists %}
+          <div
+            class="player"
+            data-stem-player
+            data-stem="instrumental"
+            data-audio-url="{{ instrumental_stream_url }}"
+          >
+            <div class="player__head">
+              <span class="list__label">instrumental</span>
+              <span class="player__time" data-role="time">00:00 / -00:00</span>
+            </div>
+            <div class="wave"></div>
+            <div class="player__controls">
+              <button type="button" class="button button--primary" data-role="play">
+                <span class="button-icon" data-role="icon">▶</span>
+                <span class="button-label" data-role="label">播放</span>
+              </button>
+              <a href="{{ instrumental_url }}" class="button button--ghost">下载纯音乐（无 vocal）</a>
+            </div>
+          </div>
+        {% else %}
+          <p class="list__status list__status--missing">尚未生成纯音乐文件。</p>
+        {% endif %}
+      </section>
+
+      <section class="card">
+        <a href="{{ url_for('index') }}" class="button button--ghost">继续上传其他歌曲</a>
+      </section>
+
+      <footer class="footer">
+        <p>所有分轨文件保存在本地目录：{{ stem_dir }}</p>
+      </footer>
+    </main>
+    <script>
+      window.addEventListener('load', function () {
+        if (!window.WaveSurfer) return;
+        var players = Array.prototype.slice.call(
+          document.querySelectorAll('[data-stem-player]')
+        );
+        if (!players.length) return;
+
+        function formatTime(seconds) {
+          if (!seconds || !isFinite(seconds)) return '00:00';
+          var s = Math.floor(seconds);
+          var m = Math.floor(s / 60);
+          var r = s % 60;
+          return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+        }
+
+        var current = { ws: null, el: null };
+
+        players.forEach(function (el) {
+          var audioUrl = el.getAttribute('data-audio-url');
+          if (!audioUrl) return;
+
+          var waveEl = el.querySelector('.wave');
+          var playBtn = el.querySelector('[data-role="play"]');
+          var timeEl = el.querySelector('[data-role="time"]');
+          var iconEl = el.querySelector('[data-role="icon"]');
+          var labelEl = el.querySelector('[data-role="label"]');
+          if (!waveEl || !playBtn || !timeEl) return;
+
+          var ws = WaveSurfer.create({
+            container: waveEl,
+            url: audioUrl,
+            waveColor: '#999',
+            progressColor: '#000',
+            cursorColor: '#000',
+            cursorWidth: 3,
+            height: 64,
+            barWidth: 2,
+            barGap: 2,
+            responsive: true,
+          });
+
+          var duration = 0;
+
+          ws.on('ready', function () {
+            duration = ws.getDuration() || 0;
+            timeEl.textContent = '00:00 / -' + formatTime(duration);
+          });
+
+          ws.on('audioprocess', function (currentTime) {
+            if (!duration) {
+              duration = ws.getDuration() || 0;
+            }
+            var t = currentTime || ws.getCurrentTime() || 0;
+            var remain = Math.max(duration - t, 0);
+            timeEl.textContent =
+              formatTime(t) + ' / -' + formatTime(remain);
+          });
+
+          ws.on('seek', function (progress) {
+            if (!duration) {
+              duration = ws.getDuration() || 0;
+            }
+            var t = progress * duration;
+            var remain = Math.max(duration - t, 0);
+            timeEl.textContent =
+              formatTime(t) + ' / -' + formatTime(remain);
+          });
+
+          ws.on('play', function () {
+            if (labelEl) labelEl.textContent = '暂停';
+            if (iconEl) iconEl.textContent = '❚❚';
+          });
+          ws.on('pause', function () {
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+          });
+          ws.on('finish', function () {
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+            if (duration) {
+              timeEl.textContent =
+                formatTime(duration) + ' / -00:00';
+            }
+          });
+
+          ws.on('error', function () {
+            timeEl.textContent = '加载失败';
+            if (labelEl) labelEl.textContent = '播放';
+            if (iconEl) iconEl.textContent = '▶';
+          });
+
+          playBtn.addEventListener('click', function () {
+            if (current.ws && current.ws !== ws) {
+              current.ws.pause();
+            }
+            if (ws.isPlaying()) {
+              ws.pause();
+            } else {
+              ws.play();
+              current.ws = ws;
+              current.el = el;
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+  </html>

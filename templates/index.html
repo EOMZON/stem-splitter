@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>音轨提取 | Stem Splitter</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body class="page page--dark">
+    <main class="container">
+      <header class="header">
+        <h1 class="title">音轨提取</h1>
+        <p class="subtitle">上传任意格式歌曲，一键分轨 / 去人声</p>
+      </header>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <ul class="flash-list">
+            {% for msg in messages %}
+              <li class="flash-item">{{ msg }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      {% endwith %}
+
+      <section class="card">
+        <form action="{{ url_for('process_stream') }}" method="post" enctype="multipart/form-data" class="form">
+          <label class="form__label">
+            选择音频文件
+            <input type="file" name="audio" accept="audio/*" required class="form__file">
+          </label>
+          <p class="form__hint">
+            支持常见格式：MP3 / WAV / FLAC / M4A 等。上传后将自动分轨，并生成去人声的纯音乐版本。
+          </p>
+          <button type="submit" class="button button--primary">开始提取音轨</button>
+        </form>
+      </section>
+
+      <footer class="footer">
+        <p>本工具基于本地 Demucs 分轨和轻音乐合成脚本运行，仅在你的电脑上处理音频。</p>
+      </footer>
+    </main>
+  </body>
+  </html>

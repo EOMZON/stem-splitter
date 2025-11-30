@@ -184,11 +184,22 @@
 
     <script>
       window.addEventListener('load', function () {
-        if (!window.WaveSurfer) return;
+        console.log('[StemDemo] window load');
+        console.log('[StemDemo] WaveSurfer present:', !!window.WaveSurfer);
+
+        if (!window.WaveSurfer) {
+          console.warn('[StemDemo] WaveSurfer not found on window');
+          return;
+        }
+
         var players = Array.prototype.slice.call(
           document.querySelectorAll('[data-stem-player]')
         );
-        if (!players.length) return;
+        console.log('[StemDemo] player elements found:', players.length);
+        if (!players.length) {
+          console.warn('[StemDemo] no [data-stem-player] elements found');
+          return;
+        }
 
         function formatTime(seconds) {
           if (!seconds || !isFinite(seconds)) return '00:00';
@@ -200,16 +211,24 @@
 
         var current = { ws: null, el: null };
 
-        players.forEach(function (el) {
+        players.forEach(function (el, index) {
           var audioUrl = el.getAttribute('data-audio-url');
-          if (!audioUrl) return;
+          if (!audioUrl) {
+            console.warn('[StemDemo] player has no audio-url at index', index);
+            return;
+          }
+
+          console.log('[StemDemo] init player', index, 'url:', audioUrl);
 
           var waveEl = el.querySelector('.wave');
           var playBtn = el.querySelector('[data-role="play"]');
           var timeEl = el.querySelector('[data-role="time"]');
           var iconEl = el.querySelector('[data-role="icon"]');
           var labelEl = el.querySelector('[data-role="label"]');
-          if (!waveEl || !playBtn || !timeEl) return;
+          if (!waveEl || !playBtn || !timeEl) {
+            console.warn('[StemDemo] missing sub elements for player', index);
+            return;
+          }
 
           var ws = WaveSurfer.create({
             container: waveEl,
@@ -228,6 +247,7 @@
 
           ws.on('ready', function () {
             duration = ws.getDuration() || 0;
+            console.log('[StemDemo] ready for', audioUrl, 'duration:', duration);
             timeEl.textContent = '00:00 / -' + formatTime(duration);
           });
 
@@ -268,13 +288,15 @@
             }
           });
 
-          ws.on('error', function () {
+          ws.on('error', function (e) {
+            console.error('[StemDemo] WaveSurfer error for', audioUrl, e);
             timeEl.textContent = '加载失败';
             if (labelEl) labelEl.textContent = '播放';
             if (iconEl) iconEl.textContent = '▶';
           });
 
           playBtn.addEventListener('click', function () {
+            console.log('[StemDemo] click play for', audioUrl);
             if (current.ws && current.ws !== ws) {
               current.ws.pause();
             }

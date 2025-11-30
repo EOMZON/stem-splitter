@@ -303,7 +303,12 @@
             if (ws.isPlaying()) {
               ws.pause();
             } else {
-              ws.play();
+              var playPromise = ws.play();
+              if (playPromise && typeof playPromise.catch === 'function') {
+                playPromise.catch(function (err) {
+                  console.error('[StemDemo] play() promise rejected for', audioUrl, err);
+                });
+              }
               current.ws = ws;
               current.el = el;
             }

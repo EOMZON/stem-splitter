@@ -9,7 +9,6 @@
 - 静态试听 Demo（基于预生成分轨和去人声纯音乐）：  
   👉 在 GitHub Pages 中将 Source 配置为 `main` 分支的 `/docs` 目录后，这里的访问地址类似：
   [预览地址：https://github.com/EOMZON/stem-splitter](https://github.com/EOMZON/stem-splitter)  
-  （实际生效后，建议把最终网址直接写在这里，例如：`https://example.github.io/stem-splitter/`）
 
 ---
 

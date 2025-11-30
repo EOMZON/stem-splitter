@@ -49,7 +49,7 @@
               <span class="button-icon" data-role="icon">▶</span>
               <span class="button-label" data-role="label">播放</span>
             </button>
-            <a href="demo/original.mp3" class="button button--ghost">
+                <a href="demo/original.mp3" class="button button--ghost" download>
               下载原曲（Demo 用）
             </a>
           </div>
@@ -80,7 +80,7 @@
                   <span class="button-icon" data-role="icon">▶</span>
                   <span class="button-label" data-role="label">播放</span>
                 </button>
-                <a href="demo/vocals_preview.mp3" class="button button--ghost">下载 vocals.mp3</a>
+                <a href="demo/vocals_preview.mp3" class="button button--ghost" download>下载 vocals.mp3</a>
               </div>
             </div>
           </li>
@@ -101,7 +101,7 @@
                   <span class="button-icon" data-role="icon">▶</span>
                   <span class="button-label" data-role="label">播放</span>
                 </button>
-                <a href="demo/drums_preview.mp3" class="button button--ghost">下载 drums.mp3</a>
+                <a href="demo/drums_preview.mp3" class="button button--ghost" download>下载 drums.mp3</a>
               </div>
             </div>
           </li>
@@ -122,7 +122,7 @@
                   <span class="button-icon" data-role="icon">▶</span>
                   <span class="button-label" data-role="label">播放</span>
                 </button>
-                <a href="demo/bass_preview.mp3" class="button button--ghost">下载 bass.mp3</a>
+                <a href="demo/bass_preview.mp3" class="button button--ghost" download>下载 bass.mp3</a>
               </div>
             </div>
           </li>
@@ -143,7 +143,7 @@
                   <span class="button-icon" data-role="icon">▶</span>
                   <span class="button-label" data-role="label">播放</span>
                 </button>
-                <a href="demo/other_preview.mp3" class="button button--ghost">下载 other.mp3</a>
+                <a href="demo/other_preview.mp3" class="button button--ghost" download>下载 other.mp3</a>
               </div>
             </div>
           </li>
@@ -168,7 +168,7 @@
               <span class="button-icon" data-role="icon">▶</span>
               <span class="button-label" data-role="label">播放</span>
             </button>
-            <a href="demo/instrumental_preview.mp3" class="button button--ghost">
+            <a href="demo/instrumental_preview.mp3" class="button button--ghost" download>
               下载纯音乐预览
             </a>
           </div>
@@ -212,6 +212,7 @@
         var current = { ws: null, el: null };
 
         players.forEach(function (el, index) {
+          el.classList.add('player--loading');
           var audioUrl = el.getAttribute('data-audio-url');
           if (!audioUrl) {
             console.warn('[StemDemo] player has no audio-url at index', index);
@@ -245,9 +246,12 @@
 
           var duration = 0;
 
+          timeEl.textContent = '加载中...';
+
           ws.on('ready', function () {
             duration = ws.getDuration() || 0;
             console.log('[StemDemo] ready for', audioUrl, 'duration:', duration);
+            el.classList.remove('player--loading');
             timeEl.textContent = '00:00 / -' + formatTime(duration);
           });
 
@@ -290,6 +294,8 @@
 
           ws.on('error', function (e) {
             console.error('[StemDemo] WaveSurfer error for', audioUrl, e);
+            el.classList.remove('player--loading');
+            el.classList.add('player--error');
             timeEl.textContent = '加载失败';
             if (labelEl) labelEl.textContent = '播放';
             if (iconEl) iconEl.textContent = '▶';

@@ -201,6 +201,19 @@
           return;
         }
 
+        // 预加载峰值数据，减少页面首屏的音频解码时间。
+        fetch('static/peaks.json')
+          .then(function (res) {
+            return res.json();
+          })
+          .catch(function (err) {
+            console.warn('[StemDemo] failed to load peaks.json', err);
+            return {};
+          })
+          .then(function (peaksMap) {
+            initPlayers(peaksMap || {});
+          });
+
         function formatTime(seconds) {
           if (!seconds || !isFinite(seconds)) return '00:00';
           var s = Math.floor(seconds);
@@ -211,115 +224,130 @@
 
         var current = { ws: null, el: null };
 
-        players.forEach(function (el, index) {
-          el.classList.add('player--loading');
-          var audioUrl = el.getAttribute('data-audio-url');
-          if (!audioUrl) {
-            console.warn('[StemDemo] player has no audio-url at index', index);
-            return;
-          }
+        function initPlayers(peaksMap) {
+          players.forEach(function (el, index) {
+            el.classList.add('player--loading');
+            var audioUrl = el.getAttribute('data-audio-url');
+            if (!audioUrl) {
+              console.warn('[StemDemo] player has no audio-url at index', index);
+              return;
+            }
 
-          console.log('[StemDemo] init player', index, 'url:', audioUrl);
+            console.log('[StemDemo] init player', index, 'url:', audioUrl);
 
-          var waveEl = el.querySelector('.wave');
-          var playBtn = el.querySelector('[data-role="play"]');
-          var timeEl = el.querySelector('[data-role="time"]');
-          var iconEl = el.querySelector('[data-role="icon"]');
-          var labelEl = el.querySelector('[data-role="label"]');
-          if (!waveEl || !playBtn || !timeEl) {
-            console.warn('[StemDemo] missing sub elements for player', index);
-            return;
-          }
+            var waveEl = el.querySelector('.wave');
+            var playBtn = el.querySelector('[data-role="play"]');
+            var timeEl = el.querySelector('[data-role="time"]');
+            var iconEl = el.querySelector('[data-role="icon"]');
+            var labelEl = el.querySelector('[data-role="label"]');
+            if (!waveEl || !playBtn || !timeEl) {
+              console.warn('[StemDemo] missing sub elements for player', index);
+              return;
+            }
 
-          var ws = WaveSurfer.create({
-            container: waveEl,
-            url: audioUrl,
-            waveColor: '#999',
-            progressColor: '#000',
-            cursorColor: '#000',
-            cursorWidth: 3,
-            height: 64,
-            barWidth: 2,
-            barGap: 2,
-            responsive: true,
-          });
+            var audioName = (audioUrl.split('/').pop() || '').replace(/\.mp3$/i, '');
+            var peakEntry = peaksMap[audioName];
+            var wsOptions = {
+              container: waveEl,
+              url: audioUrl,
+              waveColor: '#999',
+              progressColor: '#000',
+              cursorColor: '#000',
+              cursorWidth: 3,
+              height: 64,
+              barWidth: 2,
+              barGap: 2,
+              responsive: true,
+            };
 
-          var duration = 0;
+            if (peakEntry && Array.isArray(peakEntry.peaks) && peakEntry.peaks.length) {
+              wsOptions.peaks = peakEntry.peaks;
+              wsOptions.duration = peakEntry.duration || 0;
+            }
 
-          timeEl.textContent = '加载中...';
+            var ws = WaveSurfer.create(wsOptions);
 
-          ws.on('ready', function () {
-            duration = ws.getDuration() || 0;
-            console.log('[StemDemo] ready for', audioUrl, 'duration:', duration);
-            el.classList.remove('player--loading');
-            timeEl.textContent = '00:00 / -' + formatTime(duration);
-          });
+            var duration = 0;
 
-          ws.on('audioprocess', function (currentTime) {
-            if (!duration) {
+            timeEl.textContent = '加载中...';
+
+            ws.on('ready', function () {
               duration = ws.getDuration() || 0;
-            }
-            var t = currentTime || ws.getCurrentTime() || 0;
-            var remain = Math.max(duration - t, 0);
-            timeEl.textContent =
-              formatTime(t) + ' / -' + formatTime(remain);
-          });
-
-          ws.on('seek', function (progress) {
-            if (!duration) {
-              duration = ws.getDuration() || 0;
-            }
-            var t = progress * duration;
-            var remain = Math.max(duration - t, 0);
-            timeEl.textContent =
-              formatTime(t) + ' / -' + formatTime(remain);
-          });
-
-          ws.on('play', function () {
-            if (labelEl) labelEl.textContent = '暂停';
-            if (iconEl) iconEl.textContent = '❚❚';
-          });
-          ws.on('pause', function () {
-            if (labelEl) labelEl.textContent = '播放';
-            if (iconEl) iconEl.textContent = '▶';
-          });
-          ws.on('finish', function () {
-            if (labelEl) labelEl.textContent = '播放';
-            if (iconEl) iconEl.textContent = '▶';
-            if (duration) {
-              timeEl.textContent =
-                formatTime(duration) + ' / -00:00';
-            }
-          });
-
-          ws.on('error', function (e) {
-            console.error('[StemDemo] WaveSurfer error for', audioUrl, e);
-            el.classList.remove('player--loading');
-            el.classList.add('player--error');
-            timeEl.textContent = '加载失败';
-            if (labelEl) labelEl.textContent = '播放';
-            if (iconEl) iconEl.textContent = '▶';
-          });
-
-          playBtn.addEventListener('click', function () {
-            console.log('[StemDemo] click play for', audioUrl);
-            if (current.ws && current.ws !== ws) {
-              current.ws.pause();
-            }
-            if (ws.isPlaying()) {
-              ws.pause();
-            } else {
-              var playPromise = ws.play();
-              if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(function (err) {
-                  console.error('[StemDemo] play() promise rejected for', audioUrl, err);
-                });
+              console.log('[StemDemo] ready for', audioUrl, 'duration:', duration);
+              el.classList.remove('player--loading');
+              timeEl.textContent = '00:00 / -' + formatTime(duration);
+              var mediaEl = ws.getMediaElement && ws.getMediaElement();
+              if (mediaEl) {
+                mediaEl.preload = 'metadata';
               }
-              current.ws = ws;
-              current.el = el;
-            }
+            });
+
+            ws.on('audioprocess', function (currentTime) {
+              if (!duration) {
+                duration = ws.getDuration() || 0;
+              }
+              var t = currentTime || ws.getCurrentTime() || 0;
+              var remain = Math.max(duration - t, 0);
+              timeEl.textContent =
+                formatTime(t) + ' / -' + formatTime(remain);
+            });
+
+            ws.on('seek', function (progress) {
+              if (!duration) {
+                duration = ws.getDuration() || 0;
+              }
+              var t = progress * duration;
+              var remain = Math.max(duration - t, 0);
+              timeEl.textContent =
+                formatTime(t) + ' / -' + formatTime(remain);
+            });
+
+            ws.on('play', function () {
+              if (labelEl) labelEl.textContent = '暂停';
+              if (iconEl) iconEl.textContent = '❚❚';
+            });
+            ws.on('pause', function () {
+              if (labelEl) labelEl.textContent = '播放';
+              if (iconEl) iconEl.textContent = '▶';
+            });
+            ws.on('finish', function () {
+              if (labelEl) labelEl.textContent = '播放';
+              if (iconEl) iconEl.textContent = '▶';
+              if (duration) {
+                timeEl.textContent =
+                  formatTime(duration) + ' / -00:00';
+              }
+            });
+
+            ws.on('error', function (e) {
+              console.error('[StemDemo] WaveSurfer error for', audioUrl, e);
+              el.classList.remove('player--loading');
+              el.classList.add('player--error');
+              timeEl.textContent = '加载失败';
+              if (labelEl) labelEl.textContent = '播放';
+              if (iconEl) iconEl.textContent = '▶';
+            });
+
+            playBtn.addEventListener('click', function () {
+              console.log('[StemDemo] click play for', audioUrl);
+              if (current.ws && current.ws !== ws) {
+                current.ws.pause();
+              }
+              if (ws.isPlaying()) {
+                ws.pause();
+              } else {
+                var playPromise = ws.play();
+                if (playPromise && typeof playPromise.catch === 'function') {
+                  playPromise.catch(function (err) {
+                    console.error('[StemDemo] play() promise rejected for', audioUrl, err);
+                  });
+                }
+                current.ws = ws;
+                current.el = el;
+              }
+            });
           });
-        });
+        }
       });
     </script>
   </body>

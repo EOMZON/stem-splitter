@@ -36,6 +36,30 @@
         </form>
       </section>
 
+      {% if history_tracks %}
+        <section class="card">
+          <h2 class="section-title">历史分轨</h2>
+          <ul class="list">
+            {% for item in history_tracks %}
+              <li class="list__item">
+                <div class="player__head">
+                  <span class="list__label">{{ item.title }}</span>
+                  <a
+                    href="{{ url_for('track_detail', slug=item.slug) }}"
+                    class="button button--ghost"
+                  >
+                    查看分轨
+                  </a>
+                </div>
+                <p class="list__status">
+                  slug：{{ item.slug }}{% if item.has_instrumental %} · 已生成纯音乐{% endif %}
+                </p>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
       <footer class="footer">
         <p>本工具基于本地 Demucs 分轨和轻音乐合成脚本运行，仅在你的电脑上处理音频。</p>
       </footer>

@@ -94,7 +94,51 @@ def create_app() -> Flask:
 
     @app.route("/", methods=["GET"])
     def index():
-        return render_template("index.html")
+        # 收集已有分轨结果作为历史记录
+        history_tracks: list[dict] = []
+        if STEMS_ROOT.is_dir():
+            try:
+                # 按修改时间倒序排列，最近的在前
+                stem_dirs = sorted(
+                    [p for p in STEMS_ROOT.iterdir() if p.is_dir()],
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )
+            except OSError:
+                stem_dirs = []
+
+            for stem_dir in stem_dirs:
+                slug = stem_dir.name
+
+                # 至少存在一个音轨文件才算有效历史
+                has_stem_file = any(
+                    (stem_dir / f"{stem}.wav").is_file()
+                    for stem in ["vocals", "drums", "bass", "other"]
+                ) or (stem_dir / f"{slug}_instrumental.wav").is_file()
+                if not has_stem_file:
+                    continue
+
+                # 展示名称：尝试去掉 slug 末尾的随机短 id
+                display_title = slug
+                m = re.search(r"-(?P<id>[0-9a-f]{6})$", slug)
+                if m:
+                    base = slug[: m.start()]
+                    if base:
+                        display_title = base.replace("-", " ")
+
+                history_tracks.append(
+                    {
+                        "slug": slug,
+                        "title": display_title,
+                        "has_instrumental": (stem_dir / f"{slug}_instrumental.wav").is_file(),
+                    }
+                )
+
+                # 只展示最近的若干条，避免列表过长
+                if len(history_tracks) >= 20:
+                    break
+
+        return render_template("index.html", history_tracks=history_tracks)
 
     @app.route("/process", methods=["POST"])
     def process():

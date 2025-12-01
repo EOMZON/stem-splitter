@@ -250,6 +250,9 @@
             var wsOptions = {
               container: waveEl,
               url: audioUrl,
+              backend: 'MediaElement',
+              media: new Audio(),
+              mediaControls: false,
               waveColor: '#999',
               progressColor: '#000',
               cursorColor: '#000',
@@ -278,7 +281,8 @@
               timeEl.textContent = '00:00 / -' + formatTime(duration);
               var mediaEl = ws.getMediaElement && ws.getMediaElement();
               if (mediaEl) {
-                mediaEl.preload = 'metadata';
+                mediaEl.preload = 'auto';
+                mediaEl.crossOrigin = 'anonymous';
               }
             });
 
